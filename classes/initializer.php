@@ -42,15 +42,53 @@ namespace evidev\fuelphp\modinit;
  */
 class Initializer
 {
+
 	/**
 	 * initialize the given module if exists or all the modules referenced
-	 * in the always_load.module option of the application config file
+	 * in the always_load.modules option of the application config file
 	 * 
 	 * @param   string  $module     the module name
 	 */
 	public static function init($module = null)
 	{
+		$modules = is_string($module) ?
+		    array($module) :
+		    \Config::get('always_load.modules');
+		
+		// start loading modules
+		\Module::load($modules);
 
+		foreach ($modules as $key => $value)
+		{
+			// $key is numeric then $value is the module name
+			if (is_numeric($key))
+			{
+				$name = $value;
+				$path = \Module::exists($name);
+			}
+			else
+			// $key is the module name and $value is its path
+			{
+				$name = $key;
+				$path = $value;
+			}
+			$namespace = '\\'.ucfirst($name);
+			$classpath = \Autoloader::namespace_path($name);
+
+			// look for bootstrap file
+			$file = $path.'bootstrap.php';
+			file_exists($file) and \Fuel::load($file);
+
+			// look for $namespace::__init function in $name file
+			$file = $path.$name.'.php';
+			$func = $namespace.'\__init';
+			file_exists($file) and \Fuel::load($file)
+			    and is_callable($func) and call_user_func($func);
+
+			// load module class
+			$class = $namespace.$namespace;
+			\Autoloader::load($class);
+		}
 	}
 
 }
