@@ -51,5 +51,4 @@ To illustrate cases 2 and 3, here follow two examples :
    
 __These examples assume that the module is referenced in the ``always_load.modules`` option of the application config file.__    
 To inizialize a module loaded manually, call this package method ``Initializer::init()`` with the name of the module as argument, like this :   
->       \Module::load('mymodule');
 >       \evidev\fuelphp\modinit\Initializer::init('mymodule');
