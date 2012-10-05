@@ -30,69 +30,27 @@
  * @license     http://opensource.org/licenses/MIT MIT License
  */
 
-namespace evidev\fuelphp\modinit;
+namespace Initmethod;
+
+use \evidev\fuelphp\modinit\test\helpers\Helper;
 
 /**
- * initialize modules
+ * module main class
  * 
  * @package     modinit
  * @author      Eric VILLARD <dev@eviweb.fr>
  * @copyright	(c) 2012 Eric VILLARD <dev@eviweb.fr>
  * @license     http://opensource.org/licenses/MIT MIT License
  */
-class Initializer
+class Initmethod
 {
 
 	/**
-	 * initialize the given module if exists or all the modules referenced
-	 * in the always_load.modules option of the application config file
-	 * 
-	 * @param   string  $module     the module name
+	 * @see http://docs.fuelphp.com/general/classes.html#/init_method Fuel Documentation on how Initializing your class
 	 */
-	public static function init($module = null)
+	public static function _init()
 	{
-		$modules = is_string($module) ?
-			array($module) :
-			\Config::get('always_load.modules');
-
-		// start loading modules
-		\Module::load($modules);
-
-		foreach ($modules as $key => $value)
-		{
-			// $key is numeric then $value is the module name
-			if (is_numeric($key))
-			{
-				$name = $value;
-				$path = \Module::exists($name);
-			}
-			else
-			// $key is the module name and $value is its path
-			{
-				$name = $key;
-				$path = $value;
-			}
-			$namespace = '\\'.ucfirst($name);
-			$classpath = \Autoloader::namespace_path($name);
-
-			// look for bootstrap file
-			$file = $path.'bootstrap.php';
-			file_exists($file) and \Fuel::load($file);
-
-			// look for $namespace::__init function in $name file
-			$file = $path.$name.'.php';
-			$func = $namespace.'\\__init';
-			file_exists($file)
-				and !function_exists($func)
-				and \Fuel::load($file);
-			is_callable($func) and call_user_func($func);
-
-			// load module class
-			$class = $namespace.$namespace;
-			$func = $class.'::_init';
-			(!class_exists($class) and \Autoloader::load($class)) or
-				(is_callable($func) and call_user_func($func));
-		}
+		Helper::load_me('INITMETHOD_LOADED');
 	}
 
 }
