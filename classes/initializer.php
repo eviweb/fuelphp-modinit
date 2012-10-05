@@ -52,9 +52,9 @@ class Initializer
 	public static function init($module = null)
 	{
 		$modules = is_string($module) ?
-		    array($module) :
-		    \Config::get('always_load.modules');
-		
+			array($module) :
+			\Config::get('always_load.modules');
+
 		// start loading modules
 		\Module::load($modules);
 
@@ -81,13 +81,17 @@ class Initializer
 
 			// look for $namespace::__init function in $name file
 			$file = $path.$name.'.php';
-			$func = $namespace.'\__init';
-			file_exists($file) and \Fuel::load($file)
-			    and is_callable($func) and call_user_func($func);
+			$func = $namespace.'\\__init';
+			file_exists($file)
+				and !function_exists($func)
+				and \Fuel::load($file);
+			is_callable($func) and call_user_func($func);
 
 			// load module class
 			$class = $namespace.$namespace;
-			\Autoloader::load($class);
+			$func = $class.'::_init';
+			(!class_exists($class) and \Autoloader::load($class)) or
+				(is_callable($func) and call_user_func($func));
 		}
 	}
 
