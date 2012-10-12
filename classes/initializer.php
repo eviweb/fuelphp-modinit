@@ -90,7 +90,7 @@ class Initializer
 			// load module class
 			$class = $namespace.$namespace;
 			$func = $class.'::_init';
-			(!class_exists($class) and \Autoloader::load($class)) or
+			(!class_exists($class, false) and \Autoloader::load($class)) or
 				(is_callable($func) and call_user_func($func));
 		}
 	}
